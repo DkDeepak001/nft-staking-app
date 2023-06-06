@@ -22,21 +22,39 @@ contract Staking is ReentrancyGuard{
 
 
     struct Stakers {
-        uint256 stakedAmount;
+        uint256 stakedTokenCount;
         StakedNft[] stakedNfts;
         uint256 lastUpdated;
         uint256 unclaimedRewards;
         
     }
 
-    address public tokenAddress;
-    address public nftContractAddress;
+    address public immutable tokenAddress;
+    address public immutable nftContractAddress;
+
+
+    uint256 private immutable rewardPerHour = 10000;
 
 
 
     constructor(IERC20 _token,IERC721 _nft) {
         tokenAddress = _token;
         nftContractAddress = _nft;
+    }
+
+
+    function stake(uint _tokenId) external nonReemtrant{
+        //chech if that address already staked if already staked increase the unclained amount
+
+    }
+
+
+    function calculateReward (uint _staker) external view returns(uint256){
+        uint256 timeStaked = block.timestamp - stakeDetails[_staker].lastUpdated;
+        uint256 rewardForAllToken = stakeDetails[_staker].stakedTokenCount * timeStaked;
+        uint256 reward = (rewardForAllToken * rewardPerHour)/3600;
+
+        returns  reward;
     }
 
 

@@ -1,5 +1,6 @@
 {
-  "name": "hardhat-javascript-starter",
+  "name": "staking-contract",
+  "version": "1.0.0",
   "scripts": {
     "build": "npx thirdweb@latest detect",
     "deploy": "npx thirdweb@latest deploy",
@@ -10,6 +11,7 @@
     "hardhat": "^2.13.0"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "^4.9.0",
     "@thirdweb-dev/contracts": "^3",
     "zksync-web3": "^0.14.3"
   }

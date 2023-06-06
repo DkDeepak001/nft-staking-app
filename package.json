@@ -16,7 +16,8 @@
   "name": "nft-staking-app",
   "packageManager": "yarn@1.22.19",
   "workspaces": [
-    "apps/*",
+    "apps/app",
+    "apps/contract",
     "packages/*"
   ]
 }

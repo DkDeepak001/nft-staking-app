@@ -92,5 +92,46 @@ contract Staking is ReentrancyGuard{
         return  reward;
     }
    
+    function claimReward() public {
+            uint256 reward = calculateReward(msg.sender) + stakeDetails[msg.sender].unclaimedRewards;
+
+            require(reward > 0 , "you must have rewards to claim that");
+
+            tokenAddress.safeTransferFrom(address(this),msg.sender,reward);
+
+            stakeDetails[msg.sender].unclaimedRewards = 0;
+            stakeDetails[msg.sender].lastUpdated = block.timestamp;
+
+        }
+
+    function availableRewards() public view returns(uint256){
+        uint256 reward = calculateReward(msg.sender) + stakeDetails[msg.sender].unclaimedRewards;
+        return reward;
+    }
+
+
+
+    function getStakedNfts(address _user) external view returns(StakedNft[] memory){
+        if(stakeDetails[_user].stakedTokenCount > 0){
+         StakedNft[] memory stakedNfts = new StakedNft[](stakeDetails[_user].stakedTokenCount);
+        uint256 _index = 0;
+         for(uint i = 0; i < stakeDetails[_user].stakedTokenCount; i++){
+            if(stakeDetails[_user].stakedNfts[i].staker != address(0)){
+                stakedNfts[_index] = stakeDetails[_user].stakedNfts[i];
+                _index++;
+             
+            }
+         }
+            return stakedNfts;
+
+        }
+        
+    }
+
+
+
+    
+
+
 
 }

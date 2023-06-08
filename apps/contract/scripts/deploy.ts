@@ -6,13 +6,16 @@ async function main() {
   const Token = await ethers.getContractFactory("Token");
   const token = await Token.deploy(100);
 
-  // const Dex = await ethers.getContractFactory("Staking");
-  // const dex = await Dex.deploy(token.address, );
+  const Staking = await ethers.getContractFactory("Staking");
+  const staking = await Staking.deploy(
+    token.address,
+    "0xa853c7e388900046392b7C11Af1836FE09699180"
+  );
 
   await token.deployed();
-  // await dex.deployed();
+  await staking.deployed();
   await deploymentInfo(token, "token.json");
-  // await deploymentInfo(dex, "dex.json");
+  await deploymentInfo(staking, "staking.json");
 }
 
 async function deploymentInfo(contract: Contract, fileName: string) {

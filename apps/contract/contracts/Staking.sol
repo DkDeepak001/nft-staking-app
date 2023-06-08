@@ -63,8 +63,6 @@ contract Staking is ReentrancyGuard{
         stakeDetails[msg.sender].lastUpdated = block.timestamp;
 
         stakedOwnerAddress[_tokenId] = msg.sender;
-
-
     }
 
 
@@ -105,6 +103,7 @@ contract Staking is ReentrancyGuard{
         }
 
     function availableRewards() public view returns(uint256){
+        
         uint256 reward = calculateReward(msg.sender) + stakeDetails[msg.sender].unclaimedRewards;
         return reward;
     }

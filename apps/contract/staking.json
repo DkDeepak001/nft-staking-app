@@ -1,0 +1,19 @@
+{
+  "contract": {
+    "address": "0x413b1AfCa96a3df5A686d8BFBF93d30688a7f7D9",
+    "abi": [
+      "constructor(address _token, address _nft)",
+      "function availableRewards() view returns (uint256)",
+      "function calculateReward(address _staker) view returns (uint256)",
+      "function claimReward()",
+      "function getStakedNfts(address _user) view returns (tuple(address staker, uint256 tokenId)[])",
+      "function nftContractAddress() view returns (address)",
+      "function stake(uint256 _tokenId)",
+      "function stakeDetails(address) view returns (uint256 stakedTokenCount, uint256 lastUpdated, uint256 unclaimedRewards)",
+      "function stakedOwnerAddress(uint256) view returns (address)",
+      "function tokenAddress() view returns (address)",
+      "function withdraw(uint256 _tokenId)"
+    ],
+    "signerAddress": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+  }
+}

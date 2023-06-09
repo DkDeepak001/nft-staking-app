@@ -1,5 +1,4 @@
 require("@matterlabs/hardhat-zksync-solc");
-import "@nomicfoundation/hardhat-toolbox";
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {

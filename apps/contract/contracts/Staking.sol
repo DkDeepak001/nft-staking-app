@@ -39,22 +39,27 @@ contract Staking is ReentrancyGuard{
 
 
     constructor(IERC20 _token,IERC721 _nft) {
-        nftContractAddress = _nft;
         tokenAddress = _token;
+        nftContractAddress = _nft;
     }
 
 
-    function stake(uint _tokenId) external nonReentrant{
+    function stake(uint256 _tokenId) external nonReentrant{
         //chech if that address already staked if already staked increase the unclained amount
         if(stakeDetails[msg.sender].stakedTokenCount > 0){
             stakeDetails[msg.sender].unclaimedRewards += calculateReward(msg.sender);
         }
 
+        // Wallet must own the token they are trying to stake
+        require(
+            nftContractAddress.ownerOf(_tokenId) == msg.sender,
+            "You don't own this token!"
+        );
         //transfer nft to this contract
-        IERC721(nftContractAddress).safeTransferFrom(msg.sender,address(this),_tokenId);
+        nftContractAddress.transferFrom(msg.sender,address(this),_tokenId);
 
         //creating new struct 
-        StakedNft  memory stakedNfts =StakedNft(msg.sender,_tokenId);
+        StakedNft  memory stakedNfts = StakedNft(msg.sender,_tokenId);
 
         stakeDetails[msg.sender].stakedNfts.push(stakedNfts);
        

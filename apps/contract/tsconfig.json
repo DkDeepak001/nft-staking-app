@@ -7,6 +7,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["./hardhat.config.ts", "./scripts", "./test"],
+  "include": ["hardhat.config.js", "./scripts", "./test"],
   "exclude": ["node_modules"]
 }

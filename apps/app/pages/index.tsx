@@ -7,8 +7,7 @@ import {
   useNFTs,
 } from "@thirdweb-dev/react";
 import type { NextPage } from "next";
-import styles from "../styles/Home.module.css";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 import { useEffect } from "react";
 
 const Home: NextPage = () => {
@@ -28,13 +27,9 @@ const Home: NextPage = () => {
   const { mutateAsync: calculateReward, data: calculatedReward } =
     useContractWrite(stakingContract, "calculateReward");
 
-  const { data: avaiableReward } = useContractRead(
-    stakingContract,
-    "availableRewards"
-  );
-  console.log("avaiableReward", avaiableReward);
   useEffect(() => {
     if (!address || !calculateReward) return;
+    calculateReward({ args: [address] });
   }, [address]);
 
   const handleStakeFn = async () => {
@@ -51,30 +46,35 @@ const Home: NextPage = () => {
     const id: BigNumber = BigNumber.from(18);
     await stake({ args: [id] });
   };
-  if (!calculatedReward) return null;
-  return (
-    <>
-      <ConnectWallet />
 
-      <h1>
-        claimableRewards : {BigNumber.from(calculatedReward?._hex).toString()}
-      </h1>
+  if (!calculatedReward) return <div>Loading...</div>;
+  const reward = BigNumber.from(calculatedReward?._hex).toString() ?? "";
+
+  return (
+    <div className="bg-black h-screen">
+      <ConnectWallet />
+      <h1 className="text-white">CalculateReward: {reward} Wiz token</h1>
 
       {getStakedNfts && (
         <div>
-          <h1>Staked NFTs</h1>
+          <h1 className="text-white">Staked NFTs</h1>
           {getStakedNfts.map((nft: any) => (
             <div key={nft.tokenId._hex}>
-              <p>{BigNumber.from(nft.tokenId._hex).toString()}</p>
+              <p className="text-white">
+                {BigNumber.from(nft.tokenId._hex).toString()}
+              </p>
             </div>
           ))}
         </div>
       )}
 
-      <button className="bg-red-300 px-5 py-2" onClick={() => handleStakeFn()}>
+      <button
+        className="px-5 py-2 bg-slate-500"
+        onClick={() => handleStakeFn()}
+      >
         Stake
       </button>
-    </>
+    </div>
   );
 };
 

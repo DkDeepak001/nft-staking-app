@@ -6,7 +6,7 @@ const Header = () => {
   const address = useAddress();
 
   return (
-    <div className="flex flex-row justify-between py-5 px-28 ">
+    <div className="flex flex-row justify-between py-5">
       <div className="flex flex-row items-center gap-x-2 ">
         <Image
           src="/logo.png"

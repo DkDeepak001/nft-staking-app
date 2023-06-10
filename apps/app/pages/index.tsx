@@ -4,16 +4,14 @@ import {
   useContract,
   useContractRead,
   useContractWrite,
-  useNFTs,
 } from "@thirdweb-dev/react";
 import type { NextPage } from "next";
 import { BigNumber } from "ethers";
-import { useEffect } from "react";
+import { collectionAddress, stakingAddress } from "../const/address";
+import Header from "../components/header";
 
 const Home: NextPage = () => {
   const address = useAddress();
-  const collectionAddress = "0xa853c7e388900046392b7C11Af1836FE09699180";
-  const stakingAddress = "0x9653cB32056Fa2F52123879A686f32838fdDFCd8";
 
   const { contract } = useContract(collectionAddress);
   const { contract: stakingContract } = useContract(stakingAddress);
@@ -24,13 +22,6 @@ const Home: NextPage = () => {
     [address]
   );
   const { mutateAsync: stake } = useContractWrite(stakingContract, "stake");
-  const { mutateAsync: calculateReward, data: calculatedReward } =
-    useContractWrite(stakingContract, "calculateReward");
-
-  useEffect(() => {
-    if (!address || !calculateReward) return;
-    calculateReward({ args: [address] });
-  }, [address]);
 
   const handleStakeFn = async () => {
     if (!address) return;
@@ -47,13 +38,9 @@ const Home: NextPage = () => {
     await stake({ args: [id] });
   };
 
-  if (!calculatedReward) return <div>Loading...</div>;
-  const reward = BigNumber.from(calculatedReward?._hex).toString() ?? "";
-
   return (
     <div className="bg-black h-screen">
-      <ConnectWallet />
-      <h1 className="text-white">CalculateReward: {reward} Wiz token</h1>
+      <Header />
 
       {getStakedNfts && (
         <div>
@@ -69,7 +56,8 @@ const Home: NextPage = () => {
       )}
 
       <button
-        className="px-5 py-2 bg-slate-500"
+        className="px-5 py-2 bg-slate-500
+        "
         onClick={() => handleStakeFn()}
       >
         Stake

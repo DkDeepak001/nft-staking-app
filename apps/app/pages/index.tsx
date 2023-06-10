@@ -15,6 +15,7 @@ import { Stake } from "../components/stake";
 import { Suspense, useState } from "react";
 import Image from "next/image";
 import CardSkeleton from "../components/cardSkeletopn";
+import { toast } from "react-hot-toast";
 
 const Home: NextPage = () => {
   const [stakePopup, setStakePopup] = useState<boolean>(true);
@@ -35,11 +36,10 @@ const Home: NextPage = () => {
     error: ownedNftsError,
   } = useOwnedNFTs(nftContract, address);
 
-  console.log(ownedNfts);
-
-  const handleStakeFn = async () => {
+  const handleStake = async () => {
     if (!address) return;
-    if (!selectedNft) alert("Please select a NFT to stake");
+    if (!selectedNft) toast.error("Please select a NFT to stake");
+    setStakePopup(false);
 
     const isApproved = await nftContract?.erc721.isApproved(
       address,
@@ -47,10 +47,23 @@ const Home: NextPage = () => {
     );
 
     if (!isApproved) {
-      await nftContract?.erc721.setApprovalForAll(stakingAddress, true);
+      await toast.promise(handleApproveFn(), {
+        loading: "Approving NFT...",
+        success: "NFT Approved",
+        error: "Error Approving NFT",
+      });
     }
+
     const id: BigNumber = BigNumber.from(selectedNft);
-    await stake({ args: [id] });
+    await toast.promise(stake({ args: [id] }), {
+      loading: "Staking NFT...",
+      success: "NFT Staked",
+      error: "Error Staking NFT",
+    });
+  };
+
+  const handleApproveFn = async (): Promise<void> => {
+    nftContract?.erc721.setApprovalForAll(stakingAddress, true);
   };
 
   if (!address)
@@ -69,7 +82,7 @@ const Home: NextPage = () => {
     <div className="bg-black  max-h-full min-h-screen  px-28">
       <Header />
       <div className="border-b-2 border-slate-300/25  w-full mb-10 mt-3" />
-      <div className="flex flex-row items-center mb-10">
+      <div className="flex flex-row items-center mb-10  justify-center">
         <h1 className="text-white text-2xl font-bold">Staked NFTs</h1>
         <button
           className="px-5 py-2 bg-slate-200 rounded-lg ml-5"
@@ -79,7 +92,7 @@ const Home: NextPage = () => {
         </button>
       </div>
       {getStakedNfts && (
-        <div className="flex flex-row flex-wrap gap-5">
+        <div className="flex flex-row flex-wrap gap-5 items-center justify-center">
           {getStakedNfts.map((nft: any) => (
             <Suspense fallback={<CardSkeleton />} key={nft.tokenId._hex}>
               <Stake
@@ -107,31 +120,45 @@ const Home: NextPage = () => {
             </div>
 
             <div className="flex flex-row flex-wrap gap-4 justify-center overflow-y-auto h-[80%] ">
-              {ownedNfts?.map((item, index) => {
-                return (
-                  <div
-                    key={index}
-                    className={`flex flex-col items-center cursor-pointer h-32 w-32 rounded-lg ${
-                      selectedNft === item.metadata.id &&
-                      "border-4 border-slate-100"
-                    }`}
-                    onClick={() => {
-                      if (selectedNft === item.metadata.id) {
-                        setSelectedNft("");
-                      } else {
-                        setSelectedNft(item.metadata.id);
-                      }
-                    }}
+              {ownedNfts && ownedNfts?.length < 0 ? (
+                <div className="flex flex-row items-center ">
+                  <h2 className="text-white text-lg font-bold">
+                    No NFT&apos;s owned
+                  </h2>
+                  <button
+                    className="px-5 py-2 bg-slate-200 rounded-lg ml-5"
+                    onClick={() => setStakePopup(false)}
                   >
-                    <MediaRenderer
-                      src={item?.metadata.image}
-                      width="25"
-                      height="25"
-                      className="rounded-lg h-32 w-32"
-                    />
-                  </div>
-                );
-              })}
+                    Buy
+                  </button>
+                </div>
+              ) : (
+                ownedNfts?.map((item, index) => {
+                  return (
+                    <div
+                      key={index}
+                      className={`flex flex-col items-center cursor-pointer h-32 w-32 rounded-lg ${
+                        selectedNft === item.metadata.id &&
+                        "border-4 border-slate-100"
+                      }`}
+                      onClick={() => {
+                        if (selectedNft === item.metadata.id) {
+                          setSelectedNft("");
+                        } else {
+                          setSelectedNft(item.metadata.id);
+                        }
+                      }}
+                    >
+                      <MediaRenderer
+                        src={item?.metadata.image}
+                        width="25"
+                        height="25"
+                        className="rounded-lg h-32 w-32"
+                      />
+                    </div>
+                  );
+                })
+              )}
             </div>
             <div className="flex flex-row justify-center mt-5">
               <button
@@ -139,7 +166,7 @@ const Home: NextPage = () => {
                   !selectedNft &&
                   "disabled:opacity-50 disabled:cursor-not-allowed"
                 }}`}
-                onClick={handleStakeFn}
+                onClick={handleStake}
                 disabled={!selectedNft}
               >
                 Stake

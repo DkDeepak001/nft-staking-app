@@ -21,7 +21,7 @@ export const Stake = ({ tokenId }: StakeProps) => {
         src={data?.metadata.image}
         width="75"
         height="75"
-        className="rounded-lg h-96 w-96"
+        className="rounded-lg h-80 w-8h-80"
       />
       <div className="pt-5 flex flex-row justify-between items-center ">
         <div className="flex-col flex ">

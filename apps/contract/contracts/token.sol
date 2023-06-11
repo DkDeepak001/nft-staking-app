@@ -8,4 +8,9 @@ contract Token is ERC20{
     constructor(uint initalSupply) ERC20("WIZToken", "WIZT"){
         _mint(msg.sender, initalSupply);
     }
+
+    function increaseToken (address to, uint256 amount) public {
+        _mint(to, amount);
+    }
+    
 }

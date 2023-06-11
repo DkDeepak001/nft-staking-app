@@ -34,11 +34,11 @@ contract Staking is ReentrancyGuard{
     IERC721 public immutable nftContractAddress;
 
 
-    uint256 private immutable rewardPerHour = 10000;
+    uint256 private immutable rewardPerHour = 100;
 
 
 
-    constructor(IERC20 _token,IERC721 _nft) {
+    constructor(IERC20 _token,IERC721  _nft) {
         tokenAddress = _token;
         nftContractAddress = _nft;
     }
@@ -56,12 +56,14 @@ contract Staking is ReentrancyGuard{
             "You don't own this token!"
         );
         //transfer nft to this contract
+
         nftContractAddress.transferFrom(msg.sender,address(this),_tokenId);
+        StakedNft  memory stakedNfts = StakedNft(msg.sender,_tokenId);
+        stakeDetails[msg.sender].stakedNfts.push(stakedNfts);
+        
 
         //creating new struct 
-        StakedNft  memory stakedNfts = StakedNft(msg.sender,_tokenId);
 
-        stakeDetails[msg.sender].stakedNfts.push(stakedNfts);
        
         stakeDetails[msg.sender].stakedTokenCount++;
 
@@ -75,7 +77,12 @@ contract Staking is ReentrancyGuard{
         require(stakeDetails[msg.sender].stakedTokenCount > 0 ,"you don't have any nft's here");
 
         require(stakedOwnerAddress[_tokenId] == msg.sender,"you are not an owner for this nft's to withdraw");
+        
 
+        //transfer nft from this contract to owner address
+        nftContractAddress.transferFrom(address(this),msg.sender,_tokenId);
+      
+        
         uint256 reward = calculateReward(msg.sender);
         stakeDetails[msg.sender].unclaimedRewards += reward;
 
@@ -95,25 +102,19 @@ contract Staking is ReentrancyGuard{
         return  reward;
     }
    
-    function claimReward() public {
-            uint256 reward = calculateReward(msg.sender) + stakeDetails[msg.sender].unclaimedRewards;
 
-            require(reward > 0 , "you must have rewards to claim that");
-
-            tokenAddress.safeTransferFrom(address(this),msg.sender,reward);
-
-            stakeDetails[msg.sender].unclaimedRewards = 0;
-            stakeDetails[msg.sender].lastUpdated = block.timestamp;
-
-        }
-
-    function availableRewards() public view returns(uint256){
-        
-        uint256 reward = calculateReward(msg.sender) + stakeDetails[msg.sender].unclaimedRewards;
-        return reward;
+    function claimRewards() external {
+        uint256 rewards = calculateReward(msg.sender) + stakeDetails[msg.sender].unclaimedRewards;
+        require(rewards > 0, "You have no rewards to claim");
+        stakeDetails[msg.sender].lastUpdated = block.timestamp;
+        stakeDetails[msg.sender].unclaimedRewards = 0;
+        tokenAddress.safeTransfer(msg.sender, rewards);
     }
 
-
+    function availableRewards(address receiver) public view returns(uint256){
+        uint256 reward = calculateReward(receiver) + stakeDetails[receiver].unclaimedRewards;
+        return reward;
+    }
 
     function getStakedNfts(address _user) external view returns(StakedNft[] memory){
         if(stakeDetails[_user].stakedTokenCount > 0){

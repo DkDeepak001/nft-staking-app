@@ -1,16 +1,43 @@
-import { MediaRenderer, useContract, useNFT } from "@thirdweb-dev/react";
-import { collectionAddress } from "../const/address";
-import Link from "next/link";
-import Image from "next/image";
+import {
+  MediaRenderer,
+  useContract,
+  useContractWrite,
+  useNFT,
+} from "@thirdweb-dev/react";
+import { collectionAddress, stakingAddress } from "../const/address";
+
 import CardSkeleton from "./cardSkeletopn";
+import { toast } from "react-hot-toast";
+import { BigNumber } from "ethers";
 
 type StakeProps = {
   tokenId: string;
+  refetch: () => void;
 };
 
-export const Stake = ({ tokenId }: StakeProps) => {
-  const { contract } = useContract(collectionAddress);
-  const { data, isLoading, error } = useNFT(contract, tokenId);
+export const Stake = ({ tokenId, refetch }: StakeProps) => {
+  const { contract: nftContract } = useContract(collectionAddress);
+  const { contract: stakingContract } = useContract(stakingAddress);
+  const { data, isLoading, error } = useNFT(nftContract, tokenId);
+  const { mutateAsync: withdraw } = useContractWrite(
+    stakingContract,
+    "withdraw"
+  );
+
+  const handleWithdraw = async (id: string) => {
+    if (!id) return toast.error("Please select a NFT to withdraw");
+    try {
+      await toast.promise(withdraw({ args: [BigNumber.from(id)._hex] }), {
+        loading: "Withdrawing NFT...",
+        success: "NFT Withdrawn",
+        error: "Error Withdrawing NFT",
+      });
+      refetch();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   if (isLoading) return <CardSkeleton />;
   return (
     <div
@@ -32,40 +59,12 @@ export const Stake = ({ tokenId }: StakeProps) => {
             {data?.metadata.name}
           </p>
         </div>
-        {/* <div className="w-2/5 flex flex-col">
-          {isLoading ? (
-            <p className="bg-white/50 animate-pulse w-36 rounded-lg h-10"> </p>
-          ) : isListing && isListing[0] ? (
-            <>
-              <p className="text-white mb-2 text-center">
-                {isListing[0].buyoutCurrencyValuePerToken.displayValue} MATIC
-              </p>
-              <button
-                onClick={() => handleBuyout()}
-                className="bg-slate-300 text-brand-primary rounded-lg w-full h-11  font-medium   tracking-wider hover:bg-slate-100"
-              >
-                Buy
-              </button>
-            </>
-          ) : (
-            <>
-              <Link
-                className="flex flex-row items-center justify-start gap-x-2"
-                href={`/ownable/${item.owner}`}
-              >
-                <Image
-                  src={`https://api.dicebear.com/6.x/bottts-neutral/png?seed=${item.owner}`}
-                  width="100"
-                  height="100"
-                  className="rounded-full h-8 w-8"
-                  alt="avatar"
-                />
-
-                <p className="text-white ">{item.owner.slice(0, 8)}...</p>
-              </Link>
-            </>
-          )}
-        </div> */}
+        <button
+          className="px-5 py-2 bg-slate-200 rounded-lg"
+          onClick={() => handleWithdraw(data?.metadata?.id ?? "")}
+        >
+          withdraw
+        </button>
       </div>
     </div>
   );

@@ -1,5 +1,9 @@
-const CardSkeleton = () => {
-  const data = Array(1).fill(0);
+type CardSkeletonProps = {
+  count?: number;
+};
+const CardSkeleton = ({ count = 1 }: CardSkeletonProps) => {
+  const data = Array(count).fill(0);
+
   return (
     <div className="flex flex-row flex-wrap gap-8 justify-center">
       {data.map((item, index) => {

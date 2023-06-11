@@ -161,6 +161,8 @@ const Home: NextPage = () => {
         </h1>
       </div>
     );
+  //  @ts-ignore
+  const reward = Number(BigNumber.from(calculatedReward._hex).toString());
 
   return (
     <div className="bg-black  max-h-full min-h-screen  px-28">
@@ -173,13 +175,7 @@ const Home: NextPage = () => {
             <Image src="/coin.png" width={30} height={30} alt="coin" />
 
             <h1 className="text-white text-2xl ">
-              {calculatedReward
-                ? //  @ts-ignore
-                  (
-                    Number(BigNumber.from(calculatedReward._hex).toString()) /
-                    1e18
-                  ).toFixed(18)
-                : (0).toFixed(18)}
+              {calculatedReward ? (reward / 1e18).toFixed(18) : (0).toFixed(18)}
             </h1>
           </div>
         </div>

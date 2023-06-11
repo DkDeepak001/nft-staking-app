@@ -18,7 +18,7 @@ import {
 } from "../const/address";
 import Header from "../components/header";
 import { Stake } from "../components/stake";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, use, useEffect, useState } from "react";
 import CardSkeleton from "../components/cardSkeletopn";
 import { toast } from "react-hot-toast";
 import StakingPopup from "../components/stakingPopup";
@@ -28,6 +28,7 @@ import Image from "next/image";
 const Home: NextPage = () => {
   const [stakePopup, setStakePopup] = useState<boolean>(false);
   const [isApproved, setIsApproved] = useState<boolean | undefined>(false);
+  const [reward, setReward] = useState<number>(0.0);
   const [selectedNft, setSelectedNft] = useState<string>("");
   const address = useAddress();
   const { contract: nftContract } = useContract(collectionAddress);
@@ -59,13 +60,15 @@ const Home: NextPage = () => {
   useEffect(() => {
     const timeout = setTimeout(() => {
       calculateRewardFn();
-    }, 2000);
+    }, 5000);
     return () => clearTimeout(timeout);
   }, [address]);
 
   const calculateRewardFn = async () => {
     if (!address) return;
-    calculateReward({ args: [address] });
+    const res = await calculateReward({ args: [address] });
+    //@ts-ignore
+    setReward(Number(BigNumber.from(res._hex).toString()));
   };
 
   if (isError) toast.error("Error Calculating Reward");
@@ -96,11 +99,6 @@ const Home: NextPage = () => {
     setStakePopup(false);
 
     try {
-      const isApproved = await nftContract?.erc721.isApproved(
-        address,
-        stakingAddress
-      );
-
       const id: string = BigNumber.from(selectedNft).toString();
 
       await toast.promise(stake({ args: [id] }), {
@@ -148,7 +146,6 @@ const Home: NextPage = () => {
       setStakePopup(true);
     }
   };
-  console.log("isApproved", isApproved);
 
   if (!address)
     return (
@@ -161,8 +158,6 @@ const Home: NextPage = () => {
         </h1>
       </div>
     );
-  //  @ts-ignore
-  const reward = Number(BigNumber.from(calculatedReward._hex).toString());
 
   return (
     <div className="bg-black  max-h-full min-h-screen  px-28">
